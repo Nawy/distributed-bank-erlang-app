@@ -7,29 +7,38 @@
 %%% Created : 26. Dec 2020 10:28
 %%%-------------------------------------------------------------------
 -module(mybank_sup).
+-behavior(supervisor).
 -author("ivanermolaev").
 
 %% API
--export([start/0, stop/0, init/0]).
+-export([start_link/0, stop/0]).
 
-start() ->
-  Pid = spawn(?MODULE, init, []),
-  register(?MODULE, Pid).
+%% Supervisor callbacks
+-export([init/1]).
+
+start_link() ->
+  supervisor:start_link({local, ?MODULE}, ?MODULE, []).
 
 stop() ->
   ?MODULE ! terminate.
 
-init() ->
-  process_flag(trap_exit, true),
-  {ok, SupervisedPid} = mybank_atm:start_link(),
-  main_loop(SupervisedPid).
+init([]) ->
+  Children = [
+    {
+      %% id
+      mybank_atm,
+      %% {module, start link, args}
+      {mybank_atm, start_link, []},
+      %% restart type
+      permanent,
+      %% shutdown
+      10000,
+      %% type
+      worker,
+      %% modules
+      [mybank_atm]
+    }
+  ],
+  %% Intensity (10) maximum number of restarts into the give period of time (10 seconds)
+  {ok, {{one_for_one, 10, 10}, Children}}.
 
-main_loop(SupervisedPid) ->
-  receive
-    {'EXIT', SupervisedPid, _} ->
-      error_logger:error_msg("mybank process died, respawning"),
-      {ok, SupervisedPid} = mybank_atm:start_link(),
-      main_loop(SupervisedPid);
-    terminate ->
-      mybank_atm:stop()
-  end.
