@@ -1,9 +1,43 @@
-## Erlang Application without OTP
+##The basic My Bank example in erlang
+Mybank app is a simple erlang application based on OTP
 
-### Load and Run
-You don't need to build it, just load files:
-```erlang
-c(mybank), c(mybank_atm), c(mybank_sup).
+### Build and Run
+You need **build** all sources into `.beam` files.
+```shell
+erl -o ebin src/*erl
 ```
 
-Then use normal API.
+Then of course, you want to start it. No problem:
+
+```shell
+erl -pa ebin
+```
+
+### API
+
+Start bank:
+```erlang
+mybank:start().
+```
+
+Stop bank:
+```erlang
+mybank:stop().
+```
+
+You can deposit money, where the name is atom:
+```erlang
+mybank:deposit(yourname, 2000).
+```
+
+Withdraw money:
+```erlang
+mybank:withdraw(yourname, 1500).
+```
+
+Check your balance:
+```erlang
+mybank:balance(yourname).
+```
+
+
