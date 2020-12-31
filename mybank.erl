@@ -13,10 +13,10 @@
 -export([start/0, stop/0, deposit/2, withdraw/2, balance/1]).
 
 start() ->
-  mybank_sup:start().
+  application:start(mybank).
 
 stop() ->
-  mybank_sup:stop().
+  application:stop(mybank).
 
 deposit(Name, Balance) ->
   mybank_atm:deposit(Name, Balance).
